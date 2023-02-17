@@ -1,23 +1,54 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from "react";
+import "./App.css";
+import "../node_modules/h8k-design/dist/index.css"
+
+
+import { Movieform, Movieslist, Search } from "./components";
+
+const title = "Favorite Movie Directory";
 
 function App() {
+  const [movies, setMovies] = useState([]);
+  const [searchText, setSearchText] = useState("");
+
+  const handleAddMovie = (movieName, rating, duration) => {
+    setMovies((movies) => [
+      ...movies,
+      {
+        name: movieName,
+        rating,
+        duration,
+      },
+    ]);
+  };
+
+  let filteredMovies = movies;
+
+  if (searchText.length >= 2) {
+    filteredMovies = movies.filter((movie) =>
+      movie.name.toLowerCase().startsWith(searchText.toLowerCase())
+    );
+  }
+
+  const sortedArray = filteredMovies.sort((a, b) => b.duration - a.duration);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h8k-navbar header={title} />
+      <div className="layout-row justify-content-center mt-100">
+        <div className="w-30 mr-75">
+          <Movieform handleAddMovie={handleAddMovie} />
+        </div>
+        <div className="layout-column w-30">
+          <Search searchText={searchText} setSearchText={setSearchText} />
+          {sortedArray.length !== 0 && <Movieslist movies={sortedArray} />}
+          {sortedArray.length === 0 && movies.length !== 0 && (
+            <div data-testid="noResult">
+              <h3 className="text-center">No Results Found</h3>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
